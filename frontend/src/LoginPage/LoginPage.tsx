@@ -120,7 +120,7 @@ function Login() {
                             onChange={(e) => setPassword(e.target.value)}
                             className='border p-4 border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-400'
                         />
-                        <button type='submit' disabled={loading} className="bg-green-300 text-white px-4 py-2 rounded shadow-md hover:bg-green-400 transition-colors duration-300 cursor-pointer">{loading ? 'Logging in...' : 'Login'}</button>
+                        <button type='submit' disabled={loading} className="bg-green-600 text-white px-4 py-2 rounded shadow-md hover:bg-green-700 transition-colors duration-300 cursor-pointer">{loading ? 'Logging in...' : 'Login'}</button>
                     </form>
                     <a href="/register" className="text-blue-500 hover:underline mt-4 block text-center">Don't have an account? Register</a>
                 </div>

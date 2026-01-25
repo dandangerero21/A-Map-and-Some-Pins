@@ -33,6 +33,12 @@ function SignupPage() {
                 },
                 body: JSON.stringify({ username, password, email }),
             });
+            
+            if(response.status === 500){
+                setError('Username or email already exists.');
+                return;
+            }
+
             if (response.ok) {
 
                 nav('/');
@@ -82,11 +88,10 @@ function SignupPage() {
             </div>
 
             <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/35 to-black/45" />
-
             <div className="relative z-10 flex flex-col justify-center items-center min-h-screen gap-6 p-8 text-white">
                 <h2 className="text-4xl tracking-widest font-bold">CREATE AN ACCOUNT</h2>
-                <div className="w-full max-w-sm rounded bg-white/85 p-6 shadow-md backdrop-blur-md text-gray-900">
-                    <h2 className="text-2xl mb-4 font-semibold">Sign Up</h2>
+                <div className="w-full max-w-sm rounded bg-white p-8 shadow-md backdrop-blur-md text-gray-900">
+                    <h2 className="text-2xl mb-4 font-semibold text-center">Sign Up</h2>
                     {error && <p className="text-red-500 mb-4">{error}</p>}
                     <form
                         onSubmit={e => {
@@ -100,30 +105,34 @@ function SignupPage() {
                             placeholder="Username"
                             value={username}
                             onChange={e => setUsername(e.target.value)}
-                            className="border border-gray-300 p-2 rounded"
+                            className='border p-4 border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-400'
                         />
                         <input
                             type="email"
                             placeholder="Email"
                             value={email}
                             onChange={e => setEmail(e.target.value)}
-                            className="border border-gray-300 p-2 rounded"
+                            className='border p-4 border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-400'
                         />
                         <input
                             type="password"
                             placeholder="Password"
                             value={password}
                             onChange={e => setPassword(e.target.value)}
-                            className="border border-gray-300 p-2 rounded"
+                            className='border p-4 border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-400'
                         />
                         <button
                             type="submit"
                             disabled={loading}
-                            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:opacity-50"
+                            className="bg-green-600 text-white px-4 py-2 rounded shadow-md hover:bg-green-700 transition-colors duration-300 cursor-pointer disabled:opacity-50"
                         >
                             {loading ? 'Registering...' : 'Sign Up'}
                         </button>
                     </form>
+
+                    <a href="/" className="text-blue-500 hover:underline mt-4 block text-center">
+                        Already have an account? Log in
+                    </a>
                 </div>
             </div>
         </div>

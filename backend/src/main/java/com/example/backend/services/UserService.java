@@ -18,7 +18,10 @@ public class UserService {
 
     // service to create a new user
     public UserResponseDTO createUser(UserCreateRequestDTO dto) {
-
+        if (userRepository.findByUsername(dto.getUsername()).isPresent() || userRepository.findByEmail(dto.getEmail()).isPresent()) {
+            throw new RuntimeException("Username or email already exists");
+        }
+        
         User user = new User();
         user.setUsername(dto.getUsername());
         user.setPassword(dto.getPassword());
