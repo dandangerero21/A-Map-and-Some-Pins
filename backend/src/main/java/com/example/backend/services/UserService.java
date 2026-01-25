@@ -43,6 +43,22 @@ public class UserService {
         return new UserResponseDTO(user);
     }
 
+    // service to validate login
+    public UserResponseDTO validateLogin(String usernameOrEmail, String password) {
+        var userOpt = userRepository.findByUsername(usernameOrEmail);
+        if (!userOpt.isPresent()) {
+            userOpt = userRepository.findByEmail(usernameOrEmail);
+        }
+        
+        User user = userOpt.orElseThrow(() -> new RuntimeException("User not found with username/email: " + usernameOrEmail));
+        
+        if (!user.getPassword().equals(password)) {
+            throw new RuntimeException("Invalid password");
+        }
+        
+        return new UserResponseDTO(user);
+    }
+
     // service to update a user
     public UserResponseDTO updateUser(Long id, UserCreateRequestDTO dto){
         User user = userRepository.findById(id)

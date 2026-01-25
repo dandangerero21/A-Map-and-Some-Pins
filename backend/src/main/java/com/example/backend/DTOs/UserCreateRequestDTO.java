@@ -11,4 +11,5 @@ public class UserCreateRequestDTO {
     private String username;
     private String email;
     private String password;
+    private String usernameOrEmail; // For login requests
 }

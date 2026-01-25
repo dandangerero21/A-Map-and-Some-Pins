@@ -1,5 +1,6 @@
 package com.example.backend.controllers;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +14,7 @@ import com.example.backend.DTOs.UserCreateRequestDTO;
 import com.example.backend.DTOs.UserResponseDTO;
 import com.example.backend.services.UserService;
 
+@CrossOrigin("http://localhost:5173")
 @RequestMapping("/users")
 @RestController
 public class UserController {
@@ -22,7 +24,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/create")
+    @PostMapping("/register")
     public UserResponseDTO createUser(@RequestBody UserCreateRequestDTO dto) {
        return userService.createUser(dto);
     }
@@ -37,6 +39,11 @@ public class UserController {
         return userService.getUserById(id);
     }
 
+
+    @PostMapping("/login")
+    public UserResponseDTO login(@RequestBody UserCreateRequestDTO dto) {
+        return userService.validateLogin(dto.getUsernameOrEmail(), dto.getPassword());
+    }
     @PutMapping("/{id}")
     public UserResponseDTO updateUser(@PathVariable Long id, @RequestBody UserCreateRequestDTO dto) {
         return userService.updateUser(id, dto);

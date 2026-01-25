@@ -12,11 +12,13 @@ import lombok.Getter;
 public class UserResponseDTO {
     private Long id;
     private String username;
+    private String email;
     private List<PinResponseDTO> pins;
 
     public UserResponseDTO(User user) {
         this.id = user.getId();
         this.username = user.getUsername();
+        this.email = user.getEmail();
         this.pins = user.getPins().stream()
                 .map(PinResponseDTO::new)
                 .toList();
