@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useState , useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Map } from '@/components/ui/map'
+import type MapLibreGL from 'maplibre-gl';
 
 interface User {
     username: string;
@@ -14,6 +16,7 @@ function SignupPage() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const nav = useNavigate();
+    const mapRef = useRef<MapLibreGL.Map>(null);
 
     const registerAccount = async () => {
         if(!username.trim() || !password.trim() || !email.trim()) {
@@ -44,42 +47,84 @@ function SignupPage() {
         }
     }
 
+    useEffect(() => {
+            const interval = setInterval(() => {
+                if (!mapRef.current) return;
+                
+                const map = mapRef.current;
+                const center = map.getCenter();
+                
+                // Move east by 0.5 degrees
+                const newLng = center.lng + 0.005;
+                // Oscillate latitude
+                const newLat = 10 * Math.sin(Date.now() / 3000);
+                
+                map.easeTo({
+                    center: [newLng, newLat],
+                    bearing: map.getBearing() + 0.5,
+                    pitch: 85, // Tilt angle (0-85 degrees)
+                    duration: 100,
+                });
+            }, 50);
+    
+            return () => clearInterval(interval);
+        }, []);
+
     return (
-        <div className='flex flex-col justify-center items-center min-h-screen gap-6 blur-bg p-8'>
-            <h2 className='text-4xl tracking-widest font-bold'>CREATE AN ACCOUNT</h2>
-            <div className='border border-gray-300 p-6 rounded shadow-md w-full max-w-sm'>
-                <h2 className='text-2xl mb-4 font-semibold'>Sign Up</h2>
-                {error && <p className='text-red-500 mb-4'>{error}</p>}
-                <form onSubmit={e => { e.preventDefault(); registerAccount(); }} className='flex flex-col gap-4'>
-                    <input 
-                        type="text"
-                        placeholder="Username"
-                        value={username}
-                        onChange={e => setUsername(e.target.value)}
-                        className='border border-gray-300 p-2 rounded'
-                    />
-                    <input 
-                        type="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={e => setEmail(e.target.value)}
-                        className='border border-gray-300 p-2 rounded'
-                    />
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        className='border border-gray-300 p-2 rounded'
-                    />
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className='bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:opacity-50'
+        <div className="relative min-h-screen overflow-hidden">
+            <div className="absolute inset-0 blur-sm">
+                <Map
+                    ref={mapRef}
+                    center={[-74.006, 40.7128]}
+                    zoom={6}
+                    interactive={false}
+                />
+            </div>
+
+            <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/35 to-black/45" />
+
+            <div className="relative z-10 flex flex-col justify-center items-center min-h-screen gap-6 p-8 text-white">
+                <h2 className="text-4xl tracking-widest font-bold">CREATE AN ACCOUNT</h2>
+                <div className="w-full max-w-sm rounded bg-white/85 p-6 shadow-md backdrop-blur-md text-gray-900">
+                    <h2 className="text-2xl mb-4 font-semibold">Sign Up</h2>
+                    {error && <p className="text-red-500 mb-4">{error}</p>}
+                    <form
+                        onSubmit={e => {
+                            e.preventDefault();
+                            registerAccount();
+                        }}
+                        className="flex flex-col gap-4"
                     >
-                        {loading ? 'Registering...' : 'Sign Up'}
-                    </button>
-                </form>
+                        <input
+                            type="text"
+                            placeholder="Username"
+                            value={username}
+                            onChange={e => setUsername(e.target.value)}
+                            className="border border-gray-300 p-2 rounded"
+                        />
+                        <input
+                            type="email"
+                            placeholder="Email"
+                            value={email}
+                            onChange={e => setEmail(e.target.value)}
+                            className="border border-gray-300 p-2 rounded"
+                        />
+                        <input
+                            type="password"
+                            placeholder="Password"
+                            value={password}
+                            onChange={e => setPassword(e.target.value)}
+                            className="border border-gray-300 p-2 rounded"
+                        />
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:opacity-50"
+                        >
+                            {loading ? 'Registering...' : 'Sign Up'}
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     );
