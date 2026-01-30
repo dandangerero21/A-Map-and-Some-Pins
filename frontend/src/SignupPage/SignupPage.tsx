@@ -69,6 +69,7 @@ function SignupPage() {
                     center: [newLng, newLat],
                     bearing: map.getBearing() + 0.5,
                     pitch: 85, // Tilt angle (0-85 degrees)
+                    zoom: 6, // Keep zoom constant
                     duration: 100,
                 });
             }, 50);
@@ -78,7 +79,7 @@ function SignupPage() {
 
     return (
         <div className="relative min-h-screen overflow-hidden">
-            <div className="absolute inset-0 blur-sm">
+            <div className="fixed inset-0 blur-sm">
                 <Map
                     ref={mapRef}
                     center={[-74.006, 40.7128]}

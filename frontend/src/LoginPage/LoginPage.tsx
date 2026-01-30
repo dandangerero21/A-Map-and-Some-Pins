@@ -4,6 +4,7 @@ import { Map } from '@/components/ui/map'
 import type MapLibreGL from 'maplibre-gl';
 
 interface User {
+    id: number;
     username: string;
     password: string;
     email: string;
@@ -17,7 +18,6 @@ function Login() {
     const [userData, setUserData] = useState<User | null>(null);
     const mapRef = useRef<MapLibreGL.Map>(null);
 
-    // Animate map movement
     useEffect(() => {
         const interval = setInterval(() => {
             if (!mapRef.current) return;
@@ -25,15 +25,15 @@ function Login() {
             const map = mapRef.current;
             const center = map.getCenter();
             
-            // Move east by 0.5 degrees
             const newLng = center.lng + 0.005;
-            // Oscillate latitude
+
             const newLat = 10 * Math.sin(Date.now() / 3000);
             
             map.easeTo({
                 center: [newLng, newLat],
                 bearing: map.getBearing() + 0.5,
-                pitch: 85, // Tilt angle (0-85 degrees)
+                pitch: 85,
+                zoom: 6,
                 duration: 100,
             });
         }, 50);
@@ -70,7 +70,7 @@ function Login() {
             const data = await response.json();
             
             setUserData(data);
-            nav('/dashboard');
+            nav('/dashboard', { state: { userData: data } });
         } catch (error) {
             console.error('Login error:', error);
             setError('Invalid username or password.');
@@ -87,8 +87,8 @@ function Login() {
     return (
         <div className='flex flex-row min-h-screen gap-8'>
             <div className='flex flex-col w-2/3 justify-center items-center relative overflow-hidden'>
-                <h1 className='text-6xl font-bold absolute text-center top-10 z-10 text-white drop-shadow-lg'>
-                            WELCOME BACK
+                <h1 className='text-4xl font-bold absolute text-center top-10 z-10 text-white drop-shadow-lg'>
+                            A WORLD OF PINS, AWAITING YOUR EXPLORE.
                 </h1>
                     <Map 
                         ref={mapRef}
