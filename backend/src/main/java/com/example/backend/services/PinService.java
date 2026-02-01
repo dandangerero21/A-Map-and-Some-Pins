@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.backend.DTOs.PinCreateDTO;
 import com.example.backend.DTOs.PinResponseDTO;
+import com.example.backend.DTOs.PinUpdateDTO;
 import com.example.backend.models.Pin;
 import com.example.backend.models.User;
 import com.example.backend.repositories.PinRepository;
@@ -63,12 +64,16 @@ public class PinService {
         return new PinResponseDTO(pin);
     }
 
-    public PinResponseDTO updatePin(Long id, PinResponseDTO dto) {
+    public PinResponseDTO updatePin(Long id, PinUpdateDTO dto) {
         Pin pin = pinRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pin not found with id: " + id));
         pin.setTitle(dto.getTitle());
         pin.setDescription(dto.getDescription());
-        pin.setImageUrl(dto.getImageUrl());
+    
+        if (dto.getImageUrl() != null && !dto.getImageUrl().isEmpty()) {
+            pin.setImageUrl(dto.getImageUrl());
+        }
+        
         pin = pinRepository.save(pin);
         return new PinResponseDTO(pin);
     }

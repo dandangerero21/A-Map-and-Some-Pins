@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.DTOs.PinCreateDTO;
 import com.example.backend.DTOs.PinResponseDTO;
+import com.example.backend.DTOs.PinUpdateDTO;
 import com.example.backend.services.PinService;
 
 @CrossOrigin(origins = "http://localhost:5173")
@@ -47,7 +48,7 @@ public class PinController {
     }
 
     @PutMapping("/{id}")
-    public PinResponseDTO updatePin(@PathVariable Long id, @RequestBody PinResponseDTO dto) {
+    public PinResponseDTO updatePin(@PathVariable Long id, @RequestBody PinUpdateDTO dto) {
         return pinService.updatePin(id, dto);
     }
 

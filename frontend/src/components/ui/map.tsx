@@ -262,6 +262,10 @@ type MapMarkerProps = {
   longitude: number;
   /** Latitude coordinate for marker position */
   latitude: number;
+  /** Minimum zoom level to display the marker */
+  minZoom?: number;
+  /** Maximum zoom level to display the marker */
+  maxZoom?: number;
   /** Marker subcomponents (MarkerContent, MarkerPopup, MarkerTooltip, MarkerLabel) */
   children: ReactNode;
   /** Callback when marker is clicked */
@@ -281,6 +285,8 @@ type MapMarkerProps = {
 function MapMarker({
   longitude,
   latitude,
+  minZoom,
+  maxZoom,
   children,
   onClick,
   onMouseEnter,
@@ -339,12 +345,26 @@ function MapMarker({
 
     marker.addTo(map);
 
+    const element = marker.getElement();
+    const updateVisibility = () => {
+      const zoom = map.getZoom();
+      const belowMin = typeof minZoom === "number" && zoom < minZoom;
+      const aboveMax = typeof maxZoom === "number" && zoom > maxZoom;
+      element.style.display = belowMin || aboveMax ? "none" : "";
+    };
+
+    updateVisibility();
+    map.on("zoom", updateVisibility);
+    map.on("zoomend", updateVisibility);
+
     return () => {
+      map.off("zoom", updateVisibility);
+      map.off("zoomend", updateVisibility);
       marker.remove();
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map]);
+  }, [map, minZoom, maxZoom]);
 
   if (
     marker.getLngLat().lng !== longitude ||
