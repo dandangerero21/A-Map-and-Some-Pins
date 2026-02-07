@@ -25,6 +25,7 @@ import lombok.Setter;
 public class User {
     
     @Id
+    @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -42,6 +43,11 @@ public class User {
     @JsonManagedReference
     @JsonIgnoreProperties("user")
     private List<Pin> pins = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    @JsonManagedReference
+    @JsonIgnoreProperties("user")
+    private List<Comment> comments = new ArrayList<>();
 
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime lastUpdatedAt;

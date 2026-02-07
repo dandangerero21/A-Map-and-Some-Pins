@@ -1,8 +1,6 @@
 package com.example.backend.models;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -13,38 +11,32 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
+@Table(name = "comments")
 @Getter
 @Setter
-@Table(name = "pins")
-public class Pin {
-    // Pin model implementation
+public class Comment {
+
     @Id
-    @Column(name = "pin_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String title;
-
-    @Column(length = 1000)
-    private String description;
-    private double latitude;
-    private double longitude;
-    private String imageUrl;
+    @Column(length = 500)
+    private String text;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnoreProperties({"pins", "password", "email"})
     private User user;
 
-    @OneToMany(mappedBy = "pin")
-    @JsonIgnoreProperties("pin")
-    private List<Comment> comments = new ArrayList<>();
+    @ManyToOne
+    @JoinColumn(name = "pin_id", nullable = false)
+    @JsonIgnoreProperties({"user", "comments"})
+    private Pin pin;
 
     private LocalDateTime createdAt = LocalDateTime.now();
 }
