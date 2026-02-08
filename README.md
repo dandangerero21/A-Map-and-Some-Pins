@@ -1,6 +1,6 @@
 # Map Practice
 
-**🚧 WORK IN PROGRESS 🚧**
+### WORK IN PROGRESS
 
 A full-stack web application in development that aims to combine user authentication with an interactive map interface. Users will be able to create accounts, log in, and place pins on a map with custom titles and descriptions.
 
@@ -21,21 +21,23 @@ This project is still in early development. Below is what's currently being work
 - User model, controller, and basic endpoints (WIP)
 - Pin model and controller (recently fixed)
 - DTO layer for data transfer
-
-### In Progress / To Do
 - User authentication and login flow
-- Frontend map interface integration
 - Pin creation and management UI
+- Frontend map interface integration
 - Pin CRUD operations refinement
 - Image upload functionality
+- Comment feature
+
+### In Progress / To Do
 - Testing and bug fixes
+- Enhancement of implemented features
 
 ## Tech Stack
 
 ### Backend
 - **Spring Boot** - Java backend framework
 - **Spring Data JPA** - Database ORM
-- **MySQL** - Database
+- **MySQL** - Database (Currently in H2 Database, but can modified easily into MySQL)
 - **Maven** - Build tool
 
 ### Frontend
@@ -121,11 +123,9 @@ The application will be available at `http://localhost:5173`
 
 ## Future Enhancements
 
-- [ ] Image upload and storage for pins
 - [ ] Real-time collaboration features
 - [ ] Pin categories and filtering
 - [ ] User profile customization
-- [ ] Social features (sharing, comments)
 - [ ] Advanced map features (clustering, heatmaps)
 
 ## Contributing
