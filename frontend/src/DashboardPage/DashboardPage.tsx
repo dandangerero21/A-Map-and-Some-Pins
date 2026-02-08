@@ -40,6 +40,7 @@ function DashboardPage() {
     const [draggable, setDraggableMarker] = useState<{lng: number; lat: number}>({lng: 0, lat: 0});
     const [selectedPin, setSelectedPin] = useState<Pin | null>(null);
     const [comments, setComments] = useState<Array<Comment>>([]);
+    const [error, setError] = useState('');
     const [isCommenting, setIsCommenting] = useState(false);
     const [messageClicked, setMessageClicked] = useState(false);
     const [commentText, setCommentText] = useState('');
@@ -92,12 +93,12 @@ function DashboardPage() {
 
     const saveComment = async (userId: number, pinId: number) => {
         if (!commentText.trim()) {
-            alert('Comment cannot be empty');
+            setError('Comment cannot be empty');
             return;
         }
 
         if(commentText.length > 500) {
-            alert('Comment cannot exceed 500 characters');
+            setError('Comment cannot exceed 500 characters.');
             return;
         }
 
@@ -247,7 +248,7 @@ function DashboardPage() {
                                 minZoom={3}
                             >
                                 <MarkerContent>
-                                    <div className="flex items-center gap-1" onClick={() => { setSelectedPin(pin); fetchComments(pin.id!); setCommentText('')}}>
+                                    <div className="flex items-center gap-1" onClick={() => { setSelectedPin(pin); fetchComments(pin.id!); setCommentText(''); setError(''); }}>
                                         {pin.username === userFromState?.username ? (
                                             <MapPin className="fill-emerald-500 stroke-white" size={28} />
                                         ) : (
@@ -367,11 +368,13 @@ function DashboardPage() {
                                 <div className="mt-3 rounded-lg border border-gray-200/80 p-3">
                                     <div className="flex items-center justify-between">
                                         <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Comments</p>
-                                        <Button variant="outline" onClick={() => setIsCommenting(!isCommenting)}>
+                                        <Button variant="outline" onClick={() => { setIsCommenting(!isCommenting); setError(''); }}>
                                             <MessageCircle className="h-4 w-4" />
                                             <span className="text-xs">Add Comment</span>
                                         </Button>
                                     </div>
+
+                                    <p className="text-red-500 text-sm">{error}</p>
 
                                     <div className="mt-2 space-y-2">
 
