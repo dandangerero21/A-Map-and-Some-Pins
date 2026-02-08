@@ -19,26 +19,41 @@ function Login() {
     const mapRef = useRef<MapLibreGL.Map>(null);
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            if (!mapRef.current) return;
-            
-            const map = mapRef.current;
-            const center = map.getCenter();
-            
-            const newLng = center.lng + 0.005;
+        let animationId: number;
+        let prevTime: number | null = null;
+        let lng = -74.006;
 
-            const newLat = 10 * Math.sin(Date.now() / 3000);
-            
-            map.easeTo({
-                center: [newLng, newLat],
-                bearing: map.getBearing() + 0.5,
-                pitch: 85,
-                zoom: 6,
-                duration: 100,
+        const animate = (time: number) => {
+            if (!mapRef.current) {
+                animationId = requestAnimationFrame(animate);
+                return;
+            }
+            if (prevTime === null) prevTime = time;
+            const delta = (time - prevTime) / 1000; // seconds
+            prevTime = time;
+
+            // Drift eastward at ~3°/sec
+            lng += delta * 3;
+            // Gentle latitude wave between ~-30° and ~30°
+            const lat = 20 * Math.sin(lng * 0.02);
+            // Slow bearing drift
+            const bearing = 15 * Math.sin(lng * 0.008);
+            // Gentle pitch oscillation
+            const pitch = 45 + 10 * Math.sin(lng * 0.012);
+
+            mapRef.current.jumpTo({
+                center: [lng, lat],
+                bearing,
+                pitch,
+                zoom: 8,
             });
-        }, 50);
 
-        return () => clearInterval(interval);
+            animationId = requestAnimationFrame(animate);
+        };
+
+        animationId = requestAnimationFrame(animate);
+
+        return () => cancelAnimationFrame(animationId);
     }, []);
 
     const findAccount = async () => {
@@ -93,8 +108,9 @@ function Login() {
                     <Map 
                         ref={mapRef}
                         center={[-74.0060, 40.7128]} 
-                        zoom={6}                        
+                        zoom={8}                        
                         interactive={false}
+                        projection={{ type: "globe" }}
                     >
                         
                     </Map>

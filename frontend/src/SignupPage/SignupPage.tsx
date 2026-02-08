@@ -54,28 +54,42 @@ function SignupPage() {
     }
 
     useEffect(() => {
-            const interval = setInterval(() => {
-                if (!mapRef.current) return;
-                
-                const map = mapRef.current;
-                const center = map.getCenter();
-                
-                // Move east by 0.5 degrees
-                const newLng = center.lng + 0.005;
-                // Oscillate latitude
-                const newLat = 10 * Math.sin(Date.now() / 3000);
-                
-                map.easeTo({
-                    center: [newLng, newLat],
-                    bearing: map.getBearing() + 0.5,
-                    pitch: 85, // Tilt angle (0-85 degrees)
-                    zoom: 6, // Keep zoom constant
-                    duration: 100,
-                });
-            }, 50);
-    
-            return () => clearInterval(interval);
-        }, []);
+        let animationId: number;
+        let prevTime: number | null = null;
+        let lng = -74.006;
+
+        const animate = (time: number) => {
+            if (!mapRef.current) {
+                animationId = requestAnimationFrame(animate);
+                return;
+            }
+            if (prevTime === null) prevTime = time;
+            const delta = (time - prevTime) / 1000; // seconds
+            prevTime = time;
+
+            // Drift eastward at ~3°/sec
+            lng += delta * 3;
+            // Gentle latitude wave between ~-30° and ~30°
+            const lat = 20 * Math.sin(lng * 0.02);
+            // Slow bearing drift
+            const bearing = 15 * Math.sin(lng * 0.008);
+            // Gentle pitch oscillation
+            const pitch = 45 + 10 * Math.sin(lng * 0.012);
+
+            mapRef.current.jumpTo({
+                center: [lng, lat],
+                bearing,
+                pitch,
+                zoom: 2.8,
+            });
+
+            animationId = requestAnimationFrame(animate);
+        };
+
+        animationId = requestAnimationFrame(animate);
+
+        return () => cancelAnimationFrame(animationId);
+    }, []);
 
     return (
         <div className="relative min-h-screen overflow-hidden">
@@ -85,6 +99,7 @@ function SignupPage() {
                     center={[-74.006, 40.7128]}
                     zoom={6}
                     interactive={false}
+                    projection={{ type: "globe" }}  
                 />
             </div>
 

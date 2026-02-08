@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/map";
 import { MapPin, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import type MapLibreGL from 'maplibre-gl';
 
 interface Comment {
     id?: number;
@@ -236,6 +237,7 @@ function DashboardPage() {
                 <Map
                     center={[0, 0]}
                     zoom={2}
+                    projection={{ type: "globe" }}
                     >
                     {!isAddingPin && pins.map((pin, index) => (
                             <MapMarker
