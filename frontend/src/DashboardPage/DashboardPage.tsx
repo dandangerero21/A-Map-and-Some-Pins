@@ -118,6 +118,26 @@ function DashboardPage() {
         }
     }
 
+    const deleteComment = async (commentId: number, pinId: number) => {
+        try {
+            if (!confirm("Are you sure you want to delete this comment?")) {
+                return;
+            }
+
+            const response = await fetch(`http://localhost:8080/comments/${commentId}`, {
+                method: 'DELETE',
+            });
+
+            if (response.ok) {
+                fetchComments(pinId);
+            } else {
+                console.error('Error deleting comment:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error deleting comment:', error);
+        }
+    }
+
     const fetchPins = async () => {
         try {
             const response = await fetch('http://localhost:8080/pins');
@@ -220,8 +240,13 @@ function DashboardPage() {
                                 minZoom={3}
                             >
                                 <MarkerContent>
-                                    <div className="flex items-center gap-1" onClick={() => setSelectedPin(pin)}>
-                                        <MapPin />
+                                    <div className="flex items-center gap-1" onClick={() => { setSelectedPin(pin); fetchComments(pin.id!);}}>
+                                        {pin.username === userFromState?.username ? (
+                                            <MapPin className="fill-emerald-500 stroke-white" size={28} />
+                                        ) : (
+                                            <MapPin className="fill-rose-500 stroke-white" size={28} />
+                                        )}
+                                        
                                         <MarkerLabel>{pin.title}</MarkerLabel>
                                     </div>
                                 </MarkerContent>
@@ -380,6 +405,14 @@ function DashboardPage() {
                                                     <p className="text-xs text-gray-500">{comment.username || "anonymous"} commented:</p>
                                                     <p className='text-xs text-muted-foreground'>at {comment.createdAt ? new Date(comment.createdAt).toLocaleString() : "unknown time"}</p>
                                                     <p className="text-sm text-gray-800">{comment.text}</p>
+                                                    {userFromState?.username === comment.username && (
+                                                        <div className="mt-1">
+                                                            <Button variant="outline" onClick={() => deleteComment(comment.id!, selectedPin.id!)}>
+                                                                <span className='text-xs text-muted-foreground'>Delete Comment</span>
+                                                            </Button>
+                                                        </div>
+                                                    )}
+
                                                 </div>
                                             ))
                                         )}
