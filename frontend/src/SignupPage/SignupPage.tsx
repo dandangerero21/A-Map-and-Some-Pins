@@ -80,7 +80,7 @@ function SignupPage() {
                 center: [lng, lat],
                 bearing,
                 pitch,
-                zoom: 2.8,
+                zoom: 6,
             });
 
             animationId = requestAnimationFrame(animate);

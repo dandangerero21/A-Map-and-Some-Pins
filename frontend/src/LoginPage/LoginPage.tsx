@@ -45,7 +45,7 @@ function Login() {
                 center: [lng, lat],
                 bearing,
                 pitch,
-                zoom: 8,
+                zoom: 6,
             });
 
             animationId = requestAnimationFrame(animate);
@@ -108,7 +108,7 @@ function Login() {
                     <Map 
                         ref={mapRef}
                         center={[-74.0060, 40.7128]} 
-                        zoom={8}                        
+                        zoom={6}                        
                         interactive={false}
                         projection={{ type: "globe" }}
                     >
