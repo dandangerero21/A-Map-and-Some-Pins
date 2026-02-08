@@ -95,6 +95,11 @@ function DashboardPage() {
             return;
         }
 
+        if(commentText.length > 500) {
+            alert('Comment cannot exceed 500 characters');
+            return;
+        }
+
         try {
             const response = await fetch(`http://localhost:8080/comments/add`, {
                 method: 'POST',
@@ -240,14 +245,14 @@ function DashboardPage() {
                                 minZoom={3}
                             >
                                 <MarkerContent>
-                                    <div className="flex items-center gap-1" onClick={() => { setSelectedPin(pin); fetchComments(pin.id!);}}>
+                                    <div className="flex items-center gap-1" onClick={() => { setSelectedPin(pin); fetchComments(pin.id!); setCommentText('')}}>
                                         {pin.username === userFromState?.username ? (
                                             <MapPin className="fill-emerald-500 stroke-white" size={28} />
                                         ) : (
                                             <MapPin className="fill-rose-500 stroke-white" size={28} />
                                         )}
                                         
-                                        <MarkerLabel>{pin.title}</MarkerLabel>
+                                        <MarkerLabel className='text-white'>{pin.title}</MarkerLabel>
                                     </div>
                                 </MarkerContent>
                                     <MarkerPopup className="w-72 max-h-[60vh] overflow-hidden p-0">
@@ -402,7 +407,7 @@ function DashboardPage() {
                                         ) : (
                                             comments.map((comment, index) => (
                                                 <div key={index} className="rounded-md bg-gray-50 p-2">
-                                                    <p className="text-xs text-gray-500">{comment.username || "anonymous"} commented:</p>
+                                                    <p className="text-xs text-gray-500"> <span className="font-semibold">{comment.username || "anonymous"}</span> commented:</p>
                                                     <p className='text-xs text-muted-foreground'>at {comment.createdAt ? new Date(comment.createdAt).toLocaleString() : "unknown time"}</p>
                                                     <p className="text-sm text-gray-800">{comment.text}</p>
                                                     {userFromState?.username === comment.username && (
