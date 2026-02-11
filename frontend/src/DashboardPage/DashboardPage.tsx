@@ -1,5 +1,6 @@
-import {useEffect, useState} from 'react'
+import { useState } from 'react'
 import { useLocation } from 'react-router-dom'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   Map,
   MapMarker,
@@ -35,11 +36,9 @@ interface Pin {
 function DashboardPage() {
     const location = useLocation();
     const userFromState = location.state?.userData;
-    const [pins, setPins] = useState<Array<Pin>>([]);
     const [isAddingPin, setIsAddingPin] = useState(false);
     const [draggable, setDraggableMarker] = useState<{lng: number; lat: number}>({lng: 0, lat: 0});
     const [selectedPin, setSelectedPin] = useState<Pin | null>(null);
-    const [comments, setComments] = useState<Array<Comment>>([]);
     const [error, setError] = useState('');
     const [isCommenting, setIsCommenting] = useState(false);
     const [messageClicked, setMessageClicked] = useState(false);
@@ -48,6 +47,132 @@ function DashboardPage() {
         title: '',
         description: '',
         imageUrl: ''
+    });
+
+    const queryClient = useQueryClient();
+
+    const API_BASE = 'http://localhost:8080';
+
+    const fetchPins = async (): Promise<Pin[]> => {
+        const response = await fetch(`${API_BASE}/pins`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch pins');
+        }
+        return response.json();
+    };
+
+    const fetchComments = async (pinId: number): Promise<Comment[]> => {
+        const response = await fetch(`${API_BASE}/comments/pins/${pinId}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch comments');
+        }
+        return response.json();
+    };
+
+    const pinsQuery = useQuery({
+        queryKey: ['pins'],
+        queryFn: fetchPins,
+    });
+
+    const commentsQuery = useQuery({
+        queryKey: ['comments', selectedPin?.id],
+        queryFn: () => fetchComments(selectedPin!.id!),
+        enabled: Boolean(selectedPin?.id && messageClicked),
+    });
+
+    const createPinMutation = useMutation({
+        mutationFn: async (newPin: Pin) => {
+            const response = await fetch(`${API_BASE}/pins/create`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newPin),
+            });
+            if (!response.ok) {
+                throw new Error('Error creating pin');
+            }
+            return response.json();
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['pins'] });
+        },
+    });
+
+    const editPinMutation = useMutation({
+        mutationFn: async ({ pinId, title, description, imageUrl }: { pinId: number; title: string; description: string; imageUrl?: string }) => {
+            const response = await fetch(`${API_BASE}/pins/${pinId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    title,
+                    description,
+                    imageUrl: imageUrl || undefined,
+                }),
+            });
+            if (!response.ok) {
+                throw new Error('Error editing pin');
+            }
+            return response.json();
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['pins'] });
+        },
+    });
+
+    const deletePinMutation = useMutation({
+        mutationFn: async (pinId: number) => {
+            const response = await fetch(`${API_BASE}/pins/${pinId}`, {
+                method: 'DELETE',
+            });
+            if (!response.ok) {
+                throw new Error('Error deleting pin');
+            }
+            return true;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['pins'] });
+        },
+    });
+
+    const createCommentMutation = useMutation({
+        mutationFn: async ({ userId, pinId, text }: { userId: number; pinId: number; text: string }) => {
+            const response = await fetch(`${API_BASE}/comments/add`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userId,
+                    pinId,
+                    text,
+                }),
+            });
+            if (!response.ok) {
+                throw new Error('Error saving comment');
+            }
+            return response.json();
+        },
+        onSuccess: (_data, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['comments', variables.pinId] });
+        },
+    });
+
+    const deleteCommentMutation = useMutation({
+        mutationFn: async ({ commentId }: { commentId: number; pinId: number }) => {
+            const response = await fetch(`${API_BASE}/comments/${commentId}`, {
+                method: 'DELETE',
+            });
+            if (!response.ok) {
+                throw new Error('Error deleting comment');
+            }
+            return true;
+        },
+        onSuccess: (_data, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['comments', variables.pinId] });
+        },
     });
 
     const handleAddPinClick = () => {
@@ -76,20 +201,10 @@ function DashboardPage() {
             imageUrl: newPinData.imageUrl || undefined,
         };
 
-        await createPin(newPin);
+        await createPinMutation.mutateAsync(newPin);
         setIsAddingPin(false);
         setNewPinData({ title: '', description: '', imageUrl: '' });
     };
-
-    const fetchComments = async (pinId: number) => {
-        try {
-            const response = await fetch(`http://localhost:8080/comments/pins/${pinId}`);
-            const data = await response.json();
-            setComments(data);
-        } catch (error) {
-            console.error('Error fetching comments:', error);
-        }
-    }
 
     const saveComment = async (userId: number, pinId: number) => {
         if (!commentText.trim()) {
@@ -102,135 +217,48 @@ function DashboardPage() {
             return;
         }
 
-        try {
-            const response = await fetch(`http://localhost:8080/comments/add`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    userId: userId,
-                    pinId: pinId,
-                    text: commentText.trim(),
-                }),
-            });
-            if (response.ok) {
-                fetchComments(pinId);
-                setCommentText('');
-            } else {
-                console.error('Error saving comment:', response.statusText);
-            }
-        } catch (error) {
-            console.error('Error saving comment:', error);
-        }
+        await createCommentMutation.mutateAsync({
+            userId,
+            pinId,
+            text: commentText.trim(),
+        });
+        setCommentText('');
     }
 
     const deleteComment = async (commentId: number, pinId: number) => {
-        try {
-            if (!confirm("Are you sure you want to delete this comment?")) {
-                return;
-            }
-
-            const response = await fetch(`http://localhost:8080/comments/${commentId}`, {
-                method: 'DELETE',
-            });
-
-            if (response.ok) {
-                fetchComments(pinId);
-            } else {
-                console.error('Error deleting comment:', response.statusText);
-            }
-        } catch (error) {
-            console.error('Error deleting comment:', error);
+        if (!confirm("Are you sure you want to delete this comment?")) {
+            return;
         }
-    }
 
-    const fetchPins = async () => {
-        try {
-            const response = await fetch('http://localhost:8080/pins');
-            const data = await response.json();
-            setPins(data);
-        } catch (error) {
-            console.error('Error fetching pins:', error);
-        }
-    }
-
-    const createPin = async (newPin: Pin) => {
-        try {
-            const response = await fetch('http://localhost:8080/pins/create', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(newPin),
-            });
-            if (response.ok) {
-                fetchPins();
-            } else {
-                console.error('Error creating pin:', response.statusText);
-            }
-        } catch (error) {
-            console.error('Error creating pin:', error);
-
-        }
+        await deleteCommentMutation.mutateAsync({ commentId, pinId });
     }
 
     const editPin = async (pinId: number) => {
-        try {
-            const newTitle = prompt('Enter new title:');
-            const newDescription = prompt('Enter new description:');
-            const newImageUrl = prompt('Enter new image URL (optional):');
+        const newTitle = prompt('Enter new title:');
+        const newDescription = prompt('Enter new description:');
+        const newImageUrl = prompt('Enter new image URL (optional):');
 
-            if (!newTitle || !newDescription) {
-                alert('Title and description cannot be empty');
-                return;
-            }
-            
-            const response = await fetch(`http://localhost:8080/pins/${pinId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    title: newTitle,
-                    description: newDescription,
-                    imageUrl: newImageUrl || undefined,
-                })
-            });
-            if (response.ok) {
-                fetchPins();
-            } else {
-                console.error('Error editing pin:', response.statusText);
-            }
-        } catch (error) {
-            console.error('Error editing pin:', error);
+        if (!newTitle || !newDescription) {
+            alert('Title and description cannot be empty');
+            return;
         }
+
+        await editPinMutation.mutateAsync({
+            pinId,
+            title: newTitle,
+            description: newDescription,
+            imageUrl: newImageUrl || undefined,
+        });
     }
 
     const deletePin = async (pinId: number) => {
-        try { 
-            if(!confirm("Are you sure you want to delete this pin?")) {
-                return;
-            }
-
-            const response = await fetch(`http://localhost:8080/pins/${pinId}`, {
-                method: 'DELETE',
-            });
-
-            if (response.ok) {
-                alert('Pin deleted successfully');
-                fetchPins();
-            } else {
-                console.error('Error deleting pin:', response.statusText);
-            }
-        } catch (error) {
-            console.error('Error deleting pin:', error);
+        if(!confirm("Are you sure you want to delete this pin?")) {
+            return;
         }
-    }
 
-    useEffect(() => {
-        fetchPins();
-    }, [Button]);
+        await deletePinMutation.mutateAsync(pinId);
+        alert('Pin deleted successfully');
+    }
 
     return (
         <div>
@@ -240,7 +268,7 @@ function DashboardPage() {
                     zoom={2}
                     projection={{ type: "globe" }}
                     >
-                    {!isAddingPin && pins.map((pin, index) => (
+                    {!isAddingPin && (pinsQuery.data ?? []).map((pin, index) => (
                             <MapMarker
                                 key={index}
                                 longitude={pin.longitude}
@@ -248,7 +276,7 @@ function DashboardPage() {
                                 minZoom={3}
                             >
                                 <MarkerContent>
-                                    <div className="flex items-center gap-1" onClick={() => { setSelectedPin(pin); fetchComments(pin.id!); setCommentText(''); setError(''); }}>
+                                    <div className="flex items-center gap-1" onClick={() => { setSelectedPin(pin); setCommentText(''); setError(''); }}>
                                         {pin.username === userFromState?.username ? (
                                             <MapPin className="fill-emerald-500 stroke-white" size={28} />
                                         ) : (
@@ -288,7 +316,7 @@ function DashboardPage() {
                                             
                                         </div>
 
-                                        <Button variant="outline" className="absolute bottom-2 right-2 rounded-full p-1" onClick={() => { setMessageClicked(!messageClicked); fetchComments(pin.id!); }}>
+                                        <Button variant="outline" className="absolute bottom-2 right-2 rounded-full p-1" onClick={() => { setMessageClicked(!messageClicked); }}>
                                             <MessageCircle className="h-4 w-4" />
                                         </Button>
 
@@ -407,10 +435,10 @@ function DashboardPage() {
                                                 </div>
                                             </div>
                                         )}
-                                        {comments.length === 0 ? (
+                                        {(commentsQuery.data ?? []).length === 0 ? (
                                             <p className="text-sm text-gray-600">No comments yet. Be the first to comment!</p>
                                         ) : (
-                                            comments.map((comment, index) => (
+                                            (commentsQuery.data ?? []).map((comment, index) => (
                                                 <div key={index} className="rounded-md bg-gray-50 p-2">
                                                     <p className="text-xs text-gray-500"> <span className="font-semibold">{comment.username || "anonymous"}</span> commented:</p>
                                                     <p className='text-xs text-muted-foreground'>at {comment.createdAt ? new Date(comment.createdAt).toLocaleString() : "unknown time"}</p>
