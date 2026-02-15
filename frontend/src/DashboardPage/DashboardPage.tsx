@@ -331,7 +331,7 @@ function DashboardPage() {
                                             )}
                                         </div>
 
-                                        <Button variant="outline" className="absolute bottom-2 right-2 rounded-full p-1" onClick={() => { setMessageClicked(!messageClicked); }}>
+                                        <Button variant="outline" className="absolute top-2 right-2 rounded-full p-1" onClick={() => { setMessageClicked(!messageClicked); }}>
                                             <MessageCircle className="h-4 w-4" />
                                         </Button>
                                     </MarkerPopup>
