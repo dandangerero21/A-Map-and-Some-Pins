@@ -1,12 +1,13 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  Map,
-  MapMarker,
-  MarkerContent,
-  MarkerLabel,
-  MarkerPopup,
+    Map,
+    MapMarker,
+    MarkerContent,
+    MarkerLabel,
+    MarkerPopup,
+    type MapRef,
 } from "@/components/ui/map";
 import { MapPin, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,7 @@ interface Pin {
 function DashboardPage() {
     const location = useLocation();
     const userFromState = location.state?.userData;
+    const mapRef = useRef<MapRef | null>(null);
     const [isAddingPin, setIsAddingPin] = useState(false);
     const [draggable, setDraggableMarker] = useState<{lng: number; lat: number}>({lng: 0, lat: 0});
     const [selectedPin, setSelectedPin] = useState<Pin | null>(null);
@@ -177,7 +179,11 @@ function DashboardPage() {
 
     const handleAddPinClick = () => {
         setIsAddingPin(true);
-        setDraggableMarker({ lng: 0, lat: 0 });
+        const center = mapRef.current?.getCenter();
+        setDraggableMarker({
+            lng: center?.lng ?? 0,
+            lat: center?.lat ?? 0,
+        });
     };
 
     const handleCancelPin = () => {
@@ -201,7 +207,7 @@ function DashboardPage() {
             imageUrl: newPinData.imageUrl || undefined,
         };
 
-        await createPinMutation.mutateAsync(newPin);
+        await createPinMutation.mutateAsync(newPin);    
         setIsAddingPin(false);
         setNewPinData({ title: '', description: '', imageUrl: '' });
     };
@@ -264,8 +270,9 @@ function DashboardPage() {
         <div>
             <div className="h-screen w-full relative">
                 <Map
-                    center={[0, 0]}
-                    zoom={2}
+                    ref={mapRef}
+                    center={[121.77, 12.88]}
+                    zoom={5}
                     projection={{ type: "globe" }}
                     >
                     {!isAddingPin && (pinsQuery.data ?? []).map((pin, index) => (
@@ -300,7 +307,7 @@ function DashboardPage() {
                                                 <h3 className="font-medium text-lg text-foreground">{pin.title}</h3>
                                                 <p className="text-md">by {pin.username || "anonymous"}</p>
                                                 <p className="text-xs text-muted-foreground">
-                                                    at {pin.createdAt ? new Date(pin.createdAt).toLocaleString() : ''}
+                                                    at {pin.createdAt ? new Date(pin.createdAt).toLocaleString() : "unknown time"}
                                                 </p>
                                                 <p className="text-xs text-muted-foreground mt-1">
                                                     {pin.latitude.toFixed(4)}, {pin.longitude.toFixed(4)}
@@ -313,15 +320,7 @@ function DashboardPage() {
                                                 <div className="mt-2 text-sm break-words">{pin.description}</div>
                                             </div>
 
-                                            
-                                        </div>
-
-                                        <Button variant="outline" className="absolute bottom-2 right-2 rounded-full p-1" onClick={() => { setMessageClicked(!messageClicked); }}>
-                                            <MessageCircle className="h-4 w-4" />
-                                        </Button>
-
-                                        {!isAddingPin && userFromState.username == pin.username && (
-                                            <div className="px-2 pb-2">
+                                            {!isAddingPin && userFromState.username == pin.username && (
                                                 <div className="flex gap-2">
                                                     <Button onClick = {() => editPin(pin.id!)}>
                                                         <p>Edit Pin</p>
@@ -330,8 +329,12 @@ function DashboardPage() {
                                                         <p>Delete Pin</p>
                                                     </Button>
                                                 </div>
-                                            </div>
-                                        )}
+                                            )}
+                                        </div>
+
+                                        <Button variant="outline" className="absolute bottom-2 right-2 rounded-full p-1" onClick={() => { setMessageClicked(!messageClicked); }}>
+                                            <MessageCircle className="h-4 w-4" />
+                                        </Button>
                                     </MarkerPopup>
                             </MapMarker>
 

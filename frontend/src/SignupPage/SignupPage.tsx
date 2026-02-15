@@ -146,6 +146,10 @@ function SignupPage() {
                         </button>
                     </form>
 
+                    <br />
+                    <p className='text-green-500'> Please don't put real account information! This is just a demo application. Thanks!</p>
+                    <p className="text-sm mt-2">- Dan</p>
+
                     <a href="/" className="text-blue-500 hover:underline mt-4 block text-center">
                         Already have an account? Log in
                     </a>

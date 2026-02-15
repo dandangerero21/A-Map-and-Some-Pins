@@ -35,6 +35,8 @@ public class Pin {
     private String description;
     private double latitude;
     private double longitude;
+
+    @Column(length = 1000)
     private String imageUrl;
 
     @ManyToOne

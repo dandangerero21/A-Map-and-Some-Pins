@@ -23,7 +23,7 @@ public class CommentService {
         this.pinRepository = pinRepository;
     }
 
-    public void addComment(String text, Long userId, Long pinId) {
+    public CommentResponseDTO addComment(String text, Long userId, Long pinId) {
         // Validate user and pin existence
         if (!userRepository.existsById(userId)) {
             throw new RuntimeException("User not found with id: " + userId);
@@ -37,7 +37,15 @@ public class CommentService {
         comment.setText(text);
         comment.setUser(userRepository.findById(userId).orElseThrow());
         comment.setPin(pinRepository.findById(pinId).orElseThrow());
-        commentRepository.save(comment);
+        Comment savedComment = commentRepository.save(comment);
+        return new CommentResponseDTO(
+            savedComment.getId(),
+            savedComment.getText(),
+            savedComment.getUser().getId(),
+            savedComment.getUser().getUsername(),
+            savedComment.getPin().getId(),
+            savedComment.getCreatedAt() != null ? savedComment.getCreatedAt().toString() : null
+        );
     }
 
     public List<CommentResponseDTO> findCommentsByPinId(Long pinId) {

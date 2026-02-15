@@ -26,8 +26,8 @@ public class CommentController {
     }
     
     @PostMapping("/add")
-    public void addComment(@RequestBody CommentCreateDTO dto) {
-        commentService.addComment(dto.getText(), dto.getUserId(), dto.getPinId());
+    public CommentResponseDTO addComment(@RequestBody CommentCreateDTO dto) {
+        return commentService.addComment(dto.getText(), dto.getUserId(), dto.getPinId());
     }
 
     @GetMapping("/pins/{pinId}")
