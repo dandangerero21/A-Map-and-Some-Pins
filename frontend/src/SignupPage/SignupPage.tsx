@@ -20,7 +20,7 @@ function SignupPage() {
         setError('');
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:8080/users/register', {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/users/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

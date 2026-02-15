@@ -60,7 +60,7 @@ function Login() {
 
         try {
             // Verify password with backend (send username/email + password)
-            const response = await fetch(`http://localhost:8080/users/login`, {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/users/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
