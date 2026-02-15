@@ -8,7 +8,8 @@ function Login() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const nav = useNavigate();
-    const mapRef = useRef<MapLibreGL.Map>(null);
+    const desktopMapRef = useRef<MapLibreGL.Map>(null);
+    const mobileMapRef = useRef<MapLibreGL.Map>(null);
 
     useEffect(() => {
         let animationId: number;
@@ -16,10 +17,14 @@ function Login() {
         let lng = -74.006;
 
         const animate = (time: number) => {
-            if (!mapRef.current) {
+            // Animate both maps if they exist
+            const maps = [desktopMapRef.current, mobileMapRef.current].filter(Boolean);
+            
+            if (maps.length === 0) {
                 animationId = requestAnimationFrame(animate);
                 return;
             }
+            
             if (prevTime === null) prevTime = time;
             const delta = (time - prevTime) / 1000; // seconds
             prevTime = time;
@@ -33,11 +38,14 @@ function Login() {
             // Gentle pitch oscillation
             const pitch = 45 + 10 * Math.sin(lng * 0.012);
 
-            mapRef.current.jumpTo({
-                center: [lng, lat],
-                bearing,
-                pitch,
-                zoom: 6,
+            // Update all active maps
+            maps.forEach(map => {
+                map?.jumpTo({
+                    center: [lng, lat],
+                    bearing,
+                    pitch,
+                    zoom: 6,
+                });
             });
 
             animationId = requestAnimationFrame(animate);
@@ -91,50 +99,102 @@ function Login() {
     }
 
     return (
-        <div className="relative min-h-screen overflow-hidden">
-            <div className="fixed inset-0 blur-sm">
-                <Map 
-                    ref={mapRef}
-                    center={[-74.0060, 40.7128]} 
-                    zoom={6}                        
-                    interactive={false}
-                    projection={{ type: "globe" }}
-                >
-                </Map>
-            </div>
+        <>
+            {/* Desktop/Large Screen Layout (2/3 map, 1/3 form) */}
+            <div className='hidden lg:flex flex-row min-h-screen gap-8'>
+                <div className='flex flex-col w-2/3 justify-center items-center relative overflow-hidden'>
+                    <h1 className='text-4xl font-bold absolute text-center top-10 z-10 text-white drop-shadow-lg'>
+                        A WORLD OF PINS, AWAITING YOUR EXPLORE.
+                    </h1>
+                    <Map 
+                        ref={desktopMapRef}
+                        center={[-74.0060, 40.7128]} 
+                        zoom={6}                        
+                        interactive={false}
+                        projection={{ type: "globe" }}
+                    >
+                    </Map>
+                </div>
 
-            <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/35 to-black/45" />
-            <div className="relative z-10 flex flex-col justify-center items-center min-h-screen gap-6 p-8 text-white">
-                <h1 className='text-3xl sm:text-4xl font-bold text-center drop-shadow-lg'>
-                    A WORLD OF PINS, AWAITING YOUR EXPLORE.
-                </h1>
-                <h2 className='text-2xl sm:text-4xl tracking-widest font-bold'>A MAP AND SOME PINS</h2>
-                <div className='w-full max-w-sm rounded bg-white p-8 shadow-md backdrop-blur-md text-gray-900'>
-                    <h2 className='text-2xl mb-4 font-semibold text-center'>Login</h2>
-                    {error && <p className="text-red-500 mb-4">{error}</p>}
-                    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                        <input
-                            type="text"
-                            placeholder="Username or Email"
-                            value={usernameOrEmail}
-                            onChange={(e) => setUsernameOrEmail(e.target.value)}
-                            className='border p-4 border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-400'
-                        />
-                        <input
-                            type="password"
-                            placeholder="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className='border p-4 border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-400'
-                        />
-                        <button type='submit' disabled={loading} className="bg-green-600 text-white px-4 py-2 rounded shadow-md hover:bg-green-700 transition-colors duration-300 cursor-pointer disabled:opacity-50">{loading ? 'Logging in...' : 'Login'}</button>
-                    </form>
-                    <Link to="/register" className="text-blue-500 hover:underline mt-4 block text-center">
-                        Don't have an account? Register
-                    </Link>
+                <div className='flex flex-col justify-center items-center w-1/3 gap-6'>
+                    <h2 className='text-4xl tracking-widest font-bold'>A MAP AND SOME PINS</h2>
+                    <div className='border border-gray-300 p-6 rounded shadow-md w-full max-w-sm'>
+                        <h2 className='text-2xl mb-4 font-semibold'>Login</h2>
+                        {error && <p className="text-red-500 mb-4">{error}</p>}
+                        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                            <input
+                                type="text"
+                                placeholder="Username or Email"
+                                value={usernameOrEmail}
+                                onChange={(e) => setUsernameOrEmail(e.target.value)}
+                                className='border p-4 border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-400'
+                            />
+                            <input
+                                type="password"
+                                placeholder="Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className='border p-4 border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-400'
+                            />
+                            <button type='submit' disabled={loading} className="bg-green-600 text-white px-4 py-2 rounded shadow-md hover:bg-green-700 transition-colors duration-300 cursor-pointer disabled:opacity-50">
+                                {loading ? 'Logging in...' : 'Login'}
+                            </button>
+                        </form>
+                        <Link to="/register" className="text-blue-500 hover:underline mt-4 block text-center">
+                            Don't have an account? Register
+                        </Link>
+                    </div>
                 </div>
             </div>
-        </div>
+
+            {/* Mobile/Tablet Layout */}
+            <div className="lg:hidden relative min-h-screen overflow-hidden">
+                <div className="fixed inset-0 blur-sm">
+                    <Map 
+                        ref={mobileMapRef}
+                        center={[-74.0060, 40.7128]} 
+                        zoom={6}                        
+                        interactive={false}
+                        projection={{ type: "globe" }}
+                    >
+                    </Map>
+                </div>
+
+                <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/35 to-black/45" />
+                <div className="relative z-10 flex flex-col justify-center items-center min-h-screen gap-6 p-8 text-white">
+                    <h1 className='text-3xl sm:text-4xl font-bold text-center drop-shadow-lg'>
+                        A WORLD OF PINS, AWAITING YOUR EXPLORE.
+                    </h1>
+                    <h2 className='text-2xl sm:text-4xl tracking-widest font-bold'>A MAP AND SOME PINS</h2>
+                    <div className='w-full max-w-sm rounded bg-white p-8 shadow-md backdrop-blur-md text-gray-900'>
+                        <h2 className='text-2xl mb-4 font-semibold text-center'>Login</h2>
+                        {error && <p className="text-red-500 mb-4">{error}</p>}
+                        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                            <input
+                                type="text"
+                                placeholder="Username or Email"
+                                value={usernameOrEmail}
+                                onChange={(e) => setUsernameOrEmail(e.target.value)}
+                                className='border p-4 border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-400'
+                            />
+                            <input
+                                type="password"
+                                placeholder="Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className='border p-4 border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-400'
+                            />
+                            <button type='submit' disabled={loading} className="bg-green-600 text-white px-4 py-2 rounded shadow-md hover:bg-green-700 transition-colors duration-300 cursor-pointer disabled:opacity-50">
+                                {loading ? 'Logging in...' : 'Login'}
+                            </button>
+                        </form>
+                        <Link to="/register" className="text-blue-500 hover:underline mt-4 block text-center">
+                            Don't have an account? Register
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        </>
     );
 }
 
