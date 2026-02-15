@@ -2,20 +2,12 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Map } from '@/components/ui/map'
 import type MapLibreGL from 'maplibre-gl';
-
-interface User {
-    id: number;
-    username: string;
-    password: string;
-    email: string;
-}
 function Login() {
     const [usernameOrEmail, setUsernameOrEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const nav = useNavigate();
-    const [userData, setUserData] = useState<User | null>(null);
     const mapRef = useRef<MapLibreGL.Map>(null);
 
     useEffect(() => {
@@ -84,7 +76,6 @@ function Login() {
             }
             const data = await response.json();
             
-            setUserData(data);
             nav('/dashboard', { state: { userData: data } });
         } catch (error) {
             console.error('Login error:', error);

@@ -3,12 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Map } from '@/components/ui/map'
 import type MapLibreGL from 'maplibre-gl';
 
-interface User {
-    username: string;
-    password: string;
-    email: string;
-}
-
 function SignupPage() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
