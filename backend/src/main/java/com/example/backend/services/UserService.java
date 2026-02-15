@@ -3,6 +3,7 @@ package com.example.backend.services;
 import com.example.backend.models.User;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.example.backend.DTOs.UserCreateRequestDTO;
 import com.example.backend.DTOs.UserResponseDTO;
@@ -11,9 +12,11 @@ import com.example.backend.repositories.UserRepository;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     // service to create a new user
@@ -24,7 +27,7 @@ public class UserService {
         
         User user = new User();
         user.setUsername(dto.getUsername());
-        user.setPassword(dto.getPassword());
+        user.setPassword(passwordEncoder.encode(dto.getPassword())); // Hash password
         user.setEmail(dto.getEmail());
         User savedUser = userRepository.save(user);
 
@@ -55,7 +58,7 @@ public class UserService {
         
         User user = userOpt.orElseThrow(() -> new RuntimeException("User not found with username/email: " + usernameOrEmail));
         
-        if (!user.getPassword().equals(password)) {
+        if (!passwordEncoder.matches(password, user.getPassword())) { // Verify hashed password
             throw new RuntimeException("Invalid password");
         }
         
@@ -68,7 +71,7 @@ public class UserService {
                     .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
         user.setUsername(dto.getUsername());
         user.setEmail(dto.getEmail());
-        user.setPassword(dto.getPassword());
+        user.setPassword(passwordEncoder.encode(dto.getPassword())); // Hash password
         User updatedUser = userRepository.save(user);
         return new UserResponseDTO(updatedUser);
     }
