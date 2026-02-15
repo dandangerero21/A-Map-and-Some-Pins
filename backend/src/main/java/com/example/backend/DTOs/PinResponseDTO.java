@@ -1,6 +1,6 @@
 package com.example.backend.DTOs;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import com.example.backend.models.Pin;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,7 +18,7 @@ public class PinResponseDTO {
     private String imageUrl;
     private Long userId;
     private String username;
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     public PinResponseDTO(Pin pin) {
         this.id = pin.getId();

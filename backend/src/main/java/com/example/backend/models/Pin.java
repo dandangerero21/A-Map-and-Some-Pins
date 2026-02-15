@@ -1,6 +1,6 @@
 package com.example.backend.models;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,5 +48,5 @@ public class Pin {
     @JsonIgnoreProperties("pin")
     private List<Comment> comments = new ArrayList<>();
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private Instant createdAt = Instant.now();
 }

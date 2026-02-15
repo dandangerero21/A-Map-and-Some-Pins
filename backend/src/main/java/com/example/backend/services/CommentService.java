@@ -44,7 +44,7 @@ public class CommentService {
             savedComment.getUser().getId(),
             savedComment.getUser().getUsername(),
             savedComment.getPin().getId(),
-            savedComment.getCreatedAt() != null ? savedComment.getCreatedAt().toString() : null
+            savedComment.getCreatedAt()
         );
     }
 
@@ -60,7 +60,7 @@ public class CommentService {
                 comment.getUser().getId(),
                 comment.getUser().getUsername(),
                 comment.getPin().getId(),
-                comment.getCreatedAt() != null ? comment.getCreatedAt().toString() : null
+                comment.getCreatedAt()
             ))
             .collect(Collectors.toList());
     }

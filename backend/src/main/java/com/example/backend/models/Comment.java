@@ -1,6 +1,6 @@
 package com.example.backend.models;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -38,5 +38,5 @@ public class Comment {
     @JsonIgnoreProperties({"user", "comments"})
     private Pin pin;
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private Instant createdAt = Instant.now();
 }

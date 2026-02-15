@@ -1,3 +1,5 @@
+import java.time.Instant;
+
 package com.example.backend.DTOs;
 
 import lombok.Getter;
@@ -11,9 +13,9 @@ public class CommentResponseDTO {
     private Long userId;
     private String username;
     private Long pinId;
-    private String createdAt;
+    private Instant createdAt;
 
-    public CommentResponseDTO(Long id, String text, Long userId, String username, Long pinId, String createdAt) {
+    public CommentResponseDTO(Long id, String text, Long userId, String username, Long pinId, Instant createdAt) {
         this.id = id;
         this.text = text;
         this.userId = userId;
