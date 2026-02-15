@@ -1,6 +1,6 @@
-import java.time.Instant;
-
 package com.example.backend.DTOs;
+
+import java.time.Instant;
 
 import lombok.Getter;
 import lombok.Setter;
