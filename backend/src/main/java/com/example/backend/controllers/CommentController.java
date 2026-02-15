@@ -16,7 +16,7 @@ import com.example.backend.DTOs.CommentResponseDTO;
 import com.example.backend.services.CommentService;
 
 @RequestMapping("/comments")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {"http://localhost:5173", "https://a-map-and-some-pins.vercel.app"})
 @RestController
 public class CommentController {
     private final CommentService commentService;

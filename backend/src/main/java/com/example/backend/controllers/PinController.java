@@ -17,7 +17,7 @@ import com.example.backend.DTOs.PinResponseDTO;
 import com.example.backend.DTOs.PinUpdateDTO;
 import com.example.backend.services.PinService;
 
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {"http://localhost:5173", "https://a-map-and-some-pins.vercel.app"})
 @RestController
 @RequestMapping("/pins")
 public class PinController {

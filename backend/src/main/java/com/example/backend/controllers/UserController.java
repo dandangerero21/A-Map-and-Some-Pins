@@ -14,7 +14,7 @@ import com.example.backend.DTOs.UserCreateRequestDTO;
 import com.example.backend.DTOs.UserResponseDTO;
 import com.example.backend.services.UserService;
 
-@CrossOrigin("http://localhost:5173")
+@CrossOrigin({"http://localhost:5173", "https://a-map-and-some-pins.vercel.app"})
 @RequestMapping("/users")
 @RestController
 public class UserController {
