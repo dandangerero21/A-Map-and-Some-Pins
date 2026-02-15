@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Map } from '@/components/ui/map'
 import type MapLibreGL from 'maplibre-gl';
 function Login() {
@@ -129,7 +129,9 @@ function Login() {
                         />
                         <button type='submit' disabled={loading} className="bg-green-600 text-white px-4 py-2 rounded shadow-md hover:bg-green-700 transition-colors duration-300 cursor-pointer">{loading ? 'Logging in...' : 'Login'}</button>
                     </form>
-                    <a href="/register" className="text-blue-500 hover:underline mt-4 block text-center">Don't have an account? Register</a>
+                    <Link to="/register" className="text-blue-500 hover:underline mt-4 block text-center">
+                        Don't have an account? Register
+                    </Link>
                 </div>
             </div>
         </div>

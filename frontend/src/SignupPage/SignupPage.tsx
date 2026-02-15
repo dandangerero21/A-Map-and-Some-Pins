@@ -1,5 +1,5 @@
 import { useState , useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Map } from '@/components/ui/map'
 import type MapLibreGL from 'maplibre-gl';
 
@@ -144,9 +144,9 @@ function SignupPage() {
                     <p className='text-green-500'> Please don't put real account information! This is just a demo application. Thanks!</p>
                     <p className="text-sm mt-2">- Dan</p>
 
-                    <a href="/" className="text-blue-500 hover:underline mt-4 block text-center">
+                    <Link to="/" className="text-blue-500 hover:underline mt-4 block text-center">
                         Already have an account? Log in
-                    </a>
+                    </Link>
                 </div>
             </div>
         </div>
