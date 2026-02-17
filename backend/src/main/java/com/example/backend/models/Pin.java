@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -44,7 +45,7 @@ public class Pin {
     @JsonIgnoreProperties({"pins", "password", "email"})
     private User user;
 
-    @OneToMany(mappedBy = "pin")
+    @OneToMany(mappedBy = "pin", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties("pin")
     private List<Comment> comments = new ArrayList<>();
 

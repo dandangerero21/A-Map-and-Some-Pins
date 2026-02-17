@@ -2,6 +2,7 @@ package com.example.backend.controllers;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,7 +54,8 @@ public class PinController {
     }
 
     @DeleteMapping("/{id}")
-    public void deletePin(@PathVariable Long id) {
+    public ResponseEntity<Void> deletePin(@PathVariable Long id) {
         pinService.deletePin(id);
+        return ResponseEntity.ok().build();
     }
 }
