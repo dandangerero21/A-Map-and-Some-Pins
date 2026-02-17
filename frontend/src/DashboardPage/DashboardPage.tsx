@@ -92,6 +92,10 @@ function DashboardPage() {
     const deletePin = async (pinId: number) => {
         if (!confirm("Are you sure you want to delete this pin?")) {
             return;
+        } else if (pinId && commentsQuery.data && commentsQuery.data.length > 0) {
+            if (!confirm('Comments are associated with this pin. Deleting it will also delete all comments. Do you want to proceed?')) {
+                return;
+            }
         }
 
         await deletePinMutation.mutateAsync(pinId);
