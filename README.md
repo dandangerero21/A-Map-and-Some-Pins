@@ -18,26 +18,28 @@ This project is still in early development. Below is what's currently being work
 
 ### Implemented
 - Backend API structure with Spring Boot
-- User model, controller, and basic endpoints (WIP)
-- Pin model and controller (recently fixed)
+- User model, controller, and all endpoints
+- Pin model and controller with full functionality
 - DTO layer for data transfer
-- User authentication and login flow
+- User authentication and login flow with password hashing
 - Pin creation and management UI
 - Frontend map interface integration
-- Pin CRUD operations refinement
+- Pin CRUD operations (Create, Read, Update, Delete)
 - Image upload functionality
-- Comment feature
+- Comment feature with full CRUD operations
+- Docker containerization
 
-### In Progress / To Do
-- Testing and bug fixes
-- Enhancement of implemented features
+### To Do / Future Enhancements
+- Comprehensive testing
+- Performance optimization
+- Additional features (see Future Enhancements below)
 
 ## Tech Stack
 
 ### Backend
 - **Spring Boot** - Java backend framework
 - **Spring Data JPA** - Database ORM
-- **MySQL** - Database (Currently in H2 Database, but can modified easily into MySQL)
+- **PostgreSQL** - Database
 - **Maven** - Build tool
 
 ### Frontend
@@ -120,6 +122,12 @@ The application will be available at `http://localhost:5173`
 - `GET /pins/user/{userId}` - Get all pins for a user
 - `PUT /pins/{id}` - Update a pin
 - `DELETE /pins/{id}` - Delete a pin
+
+### Comments
+- `POST /comments/create` - Create a new comment on a pin
+- `GET /comments/pin/{pinId}` - Get all comments for a pin
+- `PUT /comments/{id}` - Update a comment
+- `DELETE /comments/{id}` - Delete a comment
 
 ## Future Enhancements
 
