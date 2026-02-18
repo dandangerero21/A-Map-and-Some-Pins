@@ -36,3 +36,6 @@ build/
 *.db
 *.sql
 *.sqlite
+
+### Local configuration ###
+cors.properties

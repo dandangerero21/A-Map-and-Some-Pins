@@ -64,6 +64,12 @@ public class PinService {
         return new PinResponseDTO(pin);
     }
 
+    public boolean isPinOwner(Long pinId, String username) {
+        Pin pin = pinRepository.findById(pinId)
+                .orElseThrow(() -> new RuntimeException("Pin not found with id: " + pinId));
+        return pin.getUser().getUsername().equals(username);
+    }
+
     public PinResponseDTO updatePin(Long id, PinUpdateDTO dto) {
         Pin pin = pinRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pin not found with id: " + id));

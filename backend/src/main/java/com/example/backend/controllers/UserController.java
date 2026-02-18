@@ -1,5 +1,6 @@
 package com.example.backend.controllers;
 
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +15,8 @@ import com.example.backend.DTOs.UserCreateRequestDTO;
 import com.example.backend.DTOs.UserResponseDTO;
 import com.example.backend.services.UserService;
 
-@CrossOrigin({"http://localhost:5173", "https://a-map-and-some-pins.vercel.app"})
+@PropertySource("classpath:cors.properties")
+@CrossOrigin(origins = "${cors.allowed-origins}")
 @RequestMapping("/users")
 @RestController
 public class UserController {
