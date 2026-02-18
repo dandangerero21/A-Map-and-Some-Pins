@@ -1,7 +1,5 @@
 package com.example.backend.controllers;
 
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,8 +13,6 @@ import com.example.backend.DTOs.UserCreateRequestDTO;
 import com.example.backend.DTOs.UserResponseDTO;
 import com.example.backend.services.UserService;
 
-@PropertySource("classpath:cors.properties")
-@CrossOrigin(origins = "${cors.allowed-origins}")
 @RequestMapping("/users")
 @RestController
 public class UserController {
